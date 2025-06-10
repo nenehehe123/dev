@@ -1,0 +1,35 @@
+# Step 1: Install necessary libraries
+!pip install folium requests
+
+# Step 2: Import necessary libraries
+import folium
+import requests
+
+# Step 3: Load the GeoJSON Data from the web
+url = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.geojson"
+response = requests.get(url)
+
+# Step 4: Check response and parse data
+if response.status_code == 200:
+    try:
+        geojson_data = response.json()
+        print("GeoJSON data successfully loaded!")
+    except ValueError as e:
+        print(f"Error loading JSON: {e}")
+else:
+    print(f"Failed to fetch data. Status Code: {response.status_code}")
+
+# Step 5: Create the base map centered on the United States
+m = folium.Map(location=[37.0902, -95.7129], zoom_start=4)
+
+# Step 6: Add the GeoJSON layer with tooltip and popup
+if 'geojson_data' in locals():
+    folium.GeoJson(
+        geojson_data,
+        name="US States",
+        tooltip=folium.GeoJsonTooltip(fields=["name"], aliases=["State"]),
+        popup=folium.GeoJsonPopup(fields=["name"], aliases=["State"])
+    ).add_to(m)
+
+# Step 7: Display the map
+m

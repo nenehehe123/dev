@@ -1,0 +1,59 @@
+# Step 1: Install required libraries
+!pip install folium geopandas requests
+
+# Step 2: Import libraries
+import folium
+import requests
+
+# Step 3: Define a function to fetch and validate GeoJSON data
+def fetch_geojson(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        try:
+            return response.json()
+        except ValueError:
+            print(f"Invalid JSON format for URL: {url}")
+    else:
+        print(f"Failed to fetch data from {url}. Status code: {response.status_code}")
+    return None
+
+# Step 4: URLs for world, Indian states, and districts
+url_world = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
+url_india_states = "https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.geojson"
+url_india_districts = "https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin3.geojson"
+
+# Step 5: Fetch all data
+world_geojson = fetch_geojson(url_world)
+india_states_geojson = fetch_geojson(url_india_states)
+india_districts_geojson = fetch_geojson(url_india_districts)
+
+# Step 6: Create base map centered on India
+m = folium.Map(location=[20.5937, 78.9629], zoom_start=4, tiles="cartodbpositron")
+
+# Step 7: Add GeoJSON layers with tooltips
+if world_geojson:
+    folium.GeoJson(
+        world_geojson,
+        name="World Countries",
+        tooltip=folium.GeoJsonTooltip(fields=["name"], aliases=["Country"])
+    ).add_to(m)
+
+if india_states_geojson:
+    folium.GeoJson(
+        india_states_geojson,
+        name="Indian States",
+        tooltip=folium.GeoJsonTooltip(fields=["NAME_1"], aliases=["State"])
+    ).add_to(m)
+
+if india_districts_geojson:
+    folium.GeoJson(
+        india_districts_geojson,
+        name="Indian Districts",
+        tooltip=folium.GeoJsonTooltip(fields=["NAME_2"], aliases=["District"])
+    ).add_to(m)
+
+# Step 8: Add layer control
+folium.LayerControl().add_to(m)
+
+# Step 9: Display the map
+m

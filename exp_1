@@ -1,0 +1,92 @@
+from google.colab import drive
+drive.mount('/content/drive')
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Load dataset (assume CSV format)
+df = pd.read_csv("/content/drive/MyDrive/DEVDATA/email.csv")
+
+# Display first few rows
+print(df.head())
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Handle missing values (if any)
+df.dropna(inplace=True)
+
+# Summary statistics
+print(df.describe(include='all'))
+
+# Spam vs Non-Spam count plot
+sns.countplot(x=df['label'], palette="coolwarm")
+plt.title("Spam vs Non-Spam Emails")
+plt.show()
+
+# WordCloud
+from wordcloud import WordCloud
+text = " ".join(email for email in df['text'])  # Assuming 'text' column contains email content
+wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
+
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.title("Most Frequent Words in Emails")
+plt.show()
+
+# Most common words in spam vs non-spam
+from collections import Counter
+
+# Tokenize words
+spam_words = " ".join(df[df['label'] == 1]['text']).split()
+non_spam_words = " ".join(df[df['label'] == 0]['text']).split()
+
+spam_common = pd.DataFrame(Counter(spam_words).most_common(20), columns=['Word', 'Frequency'])
+non_spam_common = pd.DataFrame(Counter(non_spam_words).most_common(20), columns=['Word', 'Frequency'])
+
+# Plot
+fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+sns.barplot(y='Word', x='Frequency', data=spam_common, ax=ax[0], palette='Reds_r')
+ax[0].set_title("Most Common Words in Spam Emails")
+
+sns.barplot(y='Word', x='Frequency', data=non_spam_common, ax=ax[1], palette='Blues_r')
+ax[1].set_title("Most Common Words in Non-Spam Emails")
+
+plt.tight_layout()
+plt.show()
+
+# Email length analysis
+df['email_length'] = df['text'].apply(len)
+
+# Pairplot
+sns.pairplot(df[['email_length', 'label']], hue='label')
+plt.show()
+
+# Scatter plot
+plt.figure(figsize=(8, 6))
+plt.scatter(df['email_length'], df['label'], alpha=0.5)
+plt.xlabel("Email Length")
+plt.ylabel("Label (0 for Non-Spam, 1 for Spam)")
+plt.title("Scatter Plot of Email Length vs. Label")
+plt.grid(True)
+plt.show()
+
+# Histogram of email length
+plt.figure(figsize=(8, 5))
+plt.hist(df['email_length'], bins=30, color='skyblue', edgecolor='black')
+plt.title('Distribution of Email Length')
+plt.xlabel('Email Length')
+plt.ylabel('Frequency')
+plt.show()
+
+# Pie chart
+label_counts = df['label'].value_counts()
+plt.figure(figsize=(6, 6))
+plt.pie(label_counts, labels=label_counts.index, autopct='%1.1f%%', startangle=90, colors=['skyblue', 'lightcoral'])
+plt.title("Spam vs. Non-Spam Emails")
+plt.axis('equal')
+plt.show()

@@ -1,0 +1,68 @@
+# Step 1: Install required libraries
+!pip install pandas numpy matplotlib seaborn
+
+# Step 2: Import libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Step 3: Load the Titanic dataset
+df = sns.load_dataset('titanic')
+
+# Step 4: Preview and understand the dataset
+print(df.head())
+print(df.info())
+print(df.isnull().sum())
+
+# Step 5: Univariate Analysis - Distribution of Age
+sns.histplot(df['age'], bins=20, kde=True, color='blue')
+plt.title('Distribution of Age')
+plt.xlabel('Age')
+plt.ylabel('Frequency')
+plt.show()
+
+# Countplot for Survival
+sns.countplot(x='survived', data=df, palette='pastel')
+plt.title('Survival Count')
+plt.xlabel('Survived')
+plt.ylabel('Count')
+plt.xticks([0, 1], ['Not Survived', 'Survived'])
+plt.show()
+
+# Step 6: Bivariate Analysis - Survival by Gender
+sns.countplot(x='sex', hue='survived', data=df, palette='Set2')
+plt.title('Survival Count by Gender')
+plt.xlabel('Gender')
+plt.ylabel('Count')
+plt.legend(title='Survived', labels=['No', 'Yes'])
+plt.show()
+
+# Survival by Passenger Class
+sns.countplot(x='class', hue='survived', data=df, palette='Set1')
+plt.title('Survival Count by Passenger Class')
+plt.xlabel('Class')
+plt.ylabel('Count')
+plt.legend(title='Survived', labels=['No', 'Yes'])
+plt.show()
+
+# Step 7: Visualizing Missing Data
+sns.heatmap(df.isnull(), cbar=False, cmap='viridis')
+plt.title('Missing Data Heatmap')
+plt.show()
+
+# Step 8: Correlation Heatmap
+corr_matrix = df.select_dtypes(include=np.number).corr()
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Correlation Heatmap')
+plt.show()
+
+# Step 9: Pairplot for Numerical Features
+sns.pairplot(df[['age', 'fare', 'survived']], hue='survived', palette='husl')
+plt.show()
+
+# Step 10: Advanced Visualization - FacetGrid (Survival by Gender and Class)
+g = sns.FacetGrid(df, col='sex', row='class', hue='survived', palette='coolwarm', height=3, aspect=1.5)
+g.map(sns.histplot, 'age', kde=True)
+g.add_legend()
+plt.show()

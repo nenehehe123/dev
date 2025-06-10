@@ -1,0 +1,59 @@
+# Step 1: Install R and required Python-R interface
+!sudo apt-get update -y
+!sudo apt-get install r-base -y
+!pip install rpy2
+
+# Step 2: Load rpy2 magic extension
+%load_ext rpy2.ipython
+
+%%R
+# Step 3: Install required R packages
+install.packages("ggplot2", repos='http://cran.us.r-project.org')
+install.packages("dplyr", repos='http://cran.us.r-project.org')
+
+# Step 4: Load libraries
+library(ggplot2)
+library(dplyr)
+
+# Step 5: Load and clean data
+data <- mtcars
+data_cleaned <- data %>%
+  select(-c(carb, gear)) %>%
+  filter(mpg >= 15)
+
+# Step 6: Pair Plot
+print("Pair Plot of selected Variables:")
+pairs(data_cleaned[, c("mpg", "wt", "hp", "disp")],
+      main = "Pair Plot of Selected Variables")
+
+# Step 7: Scatter Plot of MPG vs Weight
+scatter_plot <- ggplot(data_cleaned, aes(x = mpg, y = wt)) +
+  geom_point(color = "blue") +
+  ggtitle("Scatter Plot Of MPG vs Weight") +
+  xlab("Miles Per Gallon (MPG)") +
+  ylab("Weight (WT)")
+print(scatter_plot)
+
+# Step 8: Histogram of MPG
+histogram <- ggplot(data_cleaned, aes(x = mpg)) +
+  geom_histogram(binwidth = 2, fill = "lightblue", color = "black") +
+  ggtitle("Histogram of MPG") +
+  xlab("Miles Per Gallon (MPG)") +
+  ylab("Frequency")
+print(histogram)
+
+# Step 9: Box Plot of MPG by Cylinders
+box_plot <- ggplot(data_cleaned, aes(x = as.factor(cyl), y = mpg)) +
+  geom_boxplot(fill = "pink") +
+  ggtitle("Box Plot of MPG by Cylinder Count") +
+  xlab("Number of Cylinders") +
+  ylab("Miles Per Gallon (MPG)")
+print(box_plot)
+
+# Step 10: Bar Plot of Cylinder Count
+bar_plot <- ggplot(data_cleaned, aes(x = as.factor(cyl))) +
+  geom_bar(fill = "purple") +
+  ggtitle("Bar Plot of Cylinder Count") +
+  xlab("Number of Cylinders") +
+  ylab("Count")
+print(bar_plot)
